@@ -1,6 +1,10 @@
+from src.utils.logger import get_logger
+
 from pydantic import BaseModel
 
 from langchain_community.document_loaders import PyPDFLoader
+
+logger = get_logger(__name__)
 
 LINKS = [
     "https://med.virginia.edu/family-medicine/wp-content/uploads/sites/285/2021/06/PE07032_eng_Living-With-Diabetes-ACP-1.pdf",
@@ -10,17 +14,25 @@ LINKS = [
 ]
 
 class Loader(BaseModel):
-    links : list[str] = []
+    links : list[str] | None = []
+    
+    def clean_text(self, documents):
+        clean_documents = []
+        for doc in documents:
+            raw = doc.page_content
+            cleaned_text = " ".join(raw.split())
+            clean_documents.append(cleaned_text)
+        return clean_documents
+
     
     def loadPdf(self) -> list:
-        documents = []
-
+        all_cleaned_content = []
         for url in self.links:
-            print("Loading")
+            logger.info(f"Loading pdf from url : {url}")
             loader = PyPDFLoader(url)
-            documents.extend(loader.load())
+            loaded_docs = loader.load()
+            clean = self.clean_text(loaded_docs)
+            all_cleaned_content.extend(clean)
 
-        return documents
-    
-test = Loader(links=LINKS)
-test.loadPdf()
+        return all_cleaned_content
+  
