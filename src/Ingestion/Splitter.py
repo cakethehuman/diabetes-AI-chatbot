@@ -24,4 +24,5 @@ class Splitter(BaseModel):
         chunk = text_splitter.split_documents(self.documents)
         return chunk
     
+
     
