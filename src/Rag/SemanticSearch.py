@@ -12,7 +12,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from langchain_community.document_loaders import PyPDFLoader
 
-from JinaEmbeddings import JinaEmbeddings
+from Rag.JinaEmbeddings import JinaEmbeddings
 
 PERSIST_DIR = Path(os.getenv("SEMSEARCH_DB", ".chroma_db"))
 COLLECTION = os.getenv("SEMSEARCH_COLLECTION", "docs")
