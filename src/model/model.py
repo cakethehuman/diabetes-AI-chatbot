@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any
 
 import joblib
 
@@ -7,7 +7,7 @@ import pandas as pd
 from pydantic import BaseModel, model_validator
 
 class Model(BaseModel):
-    data: Optional[List[Any]] = None
+    data: list[Any] | None = None
     
     @model_validator(mode='after')
     def validate_data(self):
