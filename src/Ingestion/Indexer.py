@@ -4,7 +4,7 @@ from langchain_chroma import Chroma
 
 from pydantic import BaseModel
 
-class indexer(BaseModel):
+class Indexer(BaseModel):
     chunks : list[Any] | None = None    
     emebed_model : str | None = None
 
