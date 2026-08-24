@@ -1,12 +1,8 @@
 from __future__ import annotations
 
 import argparse
-import os
 import sys
 from pathlib import Path
-
-from dotenv import load_dotenv
-load_dotenv()
 
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
@@ -15,22 +11,19 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from langchain_community.document_loaders import PyPDFLoader
 
-from Rag.jina_embeddings import JinaEmbeddings
+from src.rag.JinaEmbeddings import JinaEmbeddings
 
-PERSIST_DIR = Path(os.getenv("SEMSEARCH_DB", ".chroma_db"))
-COLLECTION = os.getenv("SEMSEARCH_COLLECTION", "docs")
-JINA_MODEL = os.getenv("JINA_MODEL", "jina-embeddings-v3")
-JINA_DIMENSIONS = int(os.getenv("JINA_DIMENSIONS", "1024"))
+from src.utils.Settings import settings
+
+PERSIST_DIR = settings.SEMSEARCH_DB
+COLLECTION = settings.SEMSEARCH_COLLECTION
+JINA_MODEL = settings.JINA_MODEL
+JINA_DIMENSIONS = settings.JINA_DIMENSIONS
 CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 200
 SUPPORTED_SUFFIXES = {".txt", ".md", ".markdown", ".pdf"}
 
 def build_embeddings() -> Embeddings:
-    try:
-        from Rag.jina_embeddings import JinaEmbeddings
-    except ImportError:
-        from jina_embeddings import JinaEmbeddings
-
     return JinaEmbeddings(model=JINA_MODEL, dimensions=JINA_DIMENSIONS)
 
 def load_documents(source: Path) -> list[Document]:

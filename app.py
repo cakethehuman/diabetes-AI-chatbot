@@ -1,6 +1,6 @@
 import streamlit as st
 from src.model.model import Model
-from src.Rag.SemanticSearch import get_retriever
+from src.rag.SemanticSearch import get_retriever
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
