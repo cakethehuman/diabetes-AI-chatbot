@@ -1,9 +1,9 @@
-from src.utils.logger import get_logger
-
 from pydantic import BaseModel, ConfigDict
 
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -19,6 +19,7 @@ class Splitter(BaseModel):
     
     
     def split(self) -> list[Document]:
+        logger.info("Splitting documents to chunks")
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size = self.chunk_size,
             chunk_overlap = self.chunk_overlap,

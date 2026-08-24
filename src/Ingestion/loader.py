@@ -1,8 +1,8 @@
-from src.utils.logger import get_logger
-
 from pydantic import BaseModel
 
 from langchain_community.document_loaders import PyPDFLoader
+
+from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
 

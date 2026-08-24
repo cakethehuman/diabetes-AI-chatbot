@@ -3,8 +3,13 @@ from typing import Any
 import joblib
 
 import pandas as pd
+import numpy as np
 
 from pydantic import BaseModel, model_validator
+
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 class Model(BaseModel):
     data: list[Any] | None = None
@@ -19,14 +24,13 @@ class Model(BaseModel):
         model = joblib.load('src/model/artifacts/trained_pipeline.joblib')
         return model
     
-    def predict(self):
+    def _predict_proba(self):
+        logger.info("Making predictions")
         model = self.load_model()
         feature = ['smoking_history','bmi','HbA1c_level','blood_glucose_level']
         df = pd.DataFrame([self.data], columns=feature)
-        return model.predict(df)[0]
+        probability = model.predict_proba(df)
+        return np.max(probability, axis=1) * 100, np.argmax(probability)
     
-e = Model(data=["never",0,0,0])
-hasil_prediksi = e.predict()
-print(hasil_prediksi)
         
         
