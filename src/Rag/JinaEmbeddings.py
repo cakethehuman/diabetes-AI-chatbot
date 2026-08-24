@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os 
 import time
 from typing import Any
 import requests
@@ -9,8 +8,10 @@ from langchain_core.embeddings import Embeddings
 
 from pydantic import BaseModel, model_validator, PrivateAttr
 
-API_URL = "https://api.jina.ai/v1/embeddings"
-DEFAULT_MODEL = "jina-embeddings-v3"
+from src.utils.Settings import settings
+
+API_URL = settings.JINA_API_URL
+DEFAULT_MODEL = settings.JINA_MODEL 
 DEFAULT_DIMENSIONS = 1024 
 BATCH_SIZE = 64
 TIMEOUT = 60
@@ -26,7 +27,7 @@ class JinaEmbeddings(BaseModel, Embeddings):
     
     @model_validator(mode='after')
     def verify_data(self):
-        key = self.api_key or os.getenv('JINA_API_KEY')
+        key = self.api_key or settings.JINA_API_KEY
         if not key:
             raise RuntimeWarning(
                 "JINA_API_KEY is missing"                 

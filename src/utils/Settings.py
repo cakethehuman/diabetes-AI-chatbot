@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     LLM_BASE_URL: str | None = None
     LLM_PROVIDER: str | None = None
     JINA_API_KEY: str | None = None
+    JINA_API_URL: str | None = None
     JINA_MODEL: str | None = None
     JINA_DIMENSIONS : int | None = 1024
     AGENT_TOP_K: int | None = 5
