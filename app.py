@@ -10,11 +10,6 @@ from src.utils.Settings import settings
 
 st.set_page_config(page_title='Diabetes AI Assistant', layout='wide')
 
-# 1. State Initialization
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-if "hasil" not in st.session_state:
-    st.session_state.hasil = None
 if "proba" not in st.session_state:
     st.session_state.proba = None
 if "retriever" not in st.session_state:
@@ -42,25 +37,16 @@ with st.sidebar:
     if submit:
         model = Model(data=[Smoke_history, bmi, HbA1c_level, blood_glucose_level])
         proba, hasil = model._predict_proba()
-        st.session_state.proba = float(proba[0])
-        st.session_state.hasil = int(hasil)
 
         with st.container(border=True):
             st.text(f"Probability : {st.session_state.proba:.4f}")
             st.text(f"Predicted result : {st.session_state.hasil}")
 
-# 3. Chat System Setup
 st.title("Diabetes Health Assistant")
 
 SYSTEM_PROMPT = """You are a diabetes health assistant. Answer ONLY based on the provided context from medical documents.
 If the answer is not in the context, say "I don't have enough information from the documents to answer this."
-Be concise, accurate, and cite sources. Never give medical advice outside the provided documents.
-
-You will also get a prediction result from a model: 1 means likely diabetic, 0 means not, and a confidence score.
-Prediction: {hasil}
-Probability: {proba}
-
-If prediction and probability are empty, tell the user to run the prediction form first before you can factor it in."""
+Be concise, accurate, and cite sources. Never give medical advice outside the provided documents."""
 
 prompt = ChatPromptTemplate.from_messages([
     ("system", SYSTEM_PROMPT),
@@ -68,14 +54,12 @@ prompt = ChatPromptTemplate.from_messages([
 ])
 chain = prompt | st.session_state.llm | StrOutputParser()
 
-# Reset Chat
 col1, col2 = st.columns([6, 1])
 with col2:
     if st.button("Reset Chat", type="secondary"):
         st.session_state.messages = []
         st.rerun()
 
-# 4. Render Conversation History
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
@@ -85,7 +69,6 @@ for msg in st.session_state.messages:
                     st.caption(f"**{src['source']}** (page {src['page']})")
                     st.text(src["preview"])
 
-# 5. Handle User Turn
 if user_input := st.chat_input("Ask a question about diabetes or your risk factors..."):
     st.session_state.messages.append({"role": "user", "content": user_input})
     with st.chat_message("user"):
@@ -105,8 +88,6 @@ if user_input := st.chat_input("Ask a question about diabetes or your risk facto
                 }
                 for d in docs
             ]
-
-            # LLM generation with direct values
             response = chain.invoke({
                 "context": context_text,
                 "question": user_input,
