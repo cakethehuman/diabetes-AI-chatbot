@@ -5,6 +5,9 @@ import os
 import sys
 from pathlib import Path
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
@@ -12,7 +15,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from langchain_community.document_loaders import PyPDFLoader
 
-from Rag.JinaEmbeddings import JinaEmbeddings
+from Rag.jina_embeddings import JinaEmbeddings
 
 PERSIST_DIR = Path(os.getenv("SEMSEARCH_DB", ".chroma_db"))
 COLLECTION = os.getenv("SEMSEARCH_COLLECTION", "docs")
@@ -23,6 +26,11 @@ CHUNK_OVERLAP = 200
 SUPPORTED_SUFFIXES = {".txt", ".md", ".markdown", ".pdf"}
 
 def build_embeddings() -> Embeddings:
+    try:
+        from Rag.jina_embeddings import JinaEmbeddings
+    except ImportError:
+        from jina_embeddings import JinaEmbeddings
+
     return JinaEmbeddings(model=JINA_MODEL, dimensions=JINA_DIMENSIONS)
 
 def load_documents(source: Path) -> list[Document]:
