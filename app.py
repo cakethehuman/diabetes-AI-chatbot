@@ -10,6 +10,10 @@ from src.utils.Settings import settings
 
 st.set_page_config(page_title='Diabetes AI Assistant', layout='wide')
 
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+if "hasil" not in st.session_state:
+    st.session_state.hasil = None
 if "proba" not in st.session_state:
     st.session_state.proba = None
 if "retriever" not in st.session_state:
@@ -37,16 +41,55 @@ with st.sidebar:
     if submit:
         model = Model(data=[Smoke_history, bmi, HbA1c_level, blood_glucose_level])
         proba, hasil = model._predict_proba()
+        st.session_state.proba = float(proba[0])
+        st.session_state.hasil = hasil
 
         with st.container(border=True):
+            if st.session_state.hasil == 0:
+                st.session_state.hasil = "Don't have diabetes"
+            else:
+                st.session_state.hasil = "Have diabetes"
+                
             st.text(f"Probability : {st.session_state.proba:.4f}")
             st.text(f"Predicted result : {st.session_state.hasil}")
 
+# 3. Chat System Setup
 st.title("Diabetes Health Assistant")
 
-SYSTEM_PROMPT = """You are a diabetes health assistant. Answer ONLY based on the provided context from medical documents.
-If the answer is not in the context, say "I don't have enough information from the documents to answer this."
-Be concise, accurate, and cite sources. Never give medical advice outside the provided documents."""
+SYSTEM_PROMPT = f"""
+You are a diabetes health assistant.
+
+You have TWO sources of information:
+
+1. MEDICAL DOCUMENTS
+Use these documents to answer questions about diabetes, symptoms, treatment,
+risk factors, prevention, and other medical information.
+
+2. ML PREDICTION
+A separate machine-learning model provides:
+- Prediction: {st.session_state.get("hasil", "")}
+- Probability: {st.session_state.get("proba", "")}
+
+IMPORTANT RULES:
+
+- For medical-information questions, ONLY use information supported by the
+  provided medical documents.
+- For questions about the user's prediction/risk, you MAY use the ML prediction
+  and probability provided above.
+- Do NOT treat the ML prediction as a medical diagnosis.
+- Do NOT invent medical information that is not present in the documents.
+- If the medical documents do not contain enough information to answer a
+  medical-information question, say:
+  "I don't have enough information from the documents to answer this."
+- If the user asks about their prediction and the prediction has not been run,
+  tell them to run the prediction form first.
+- Be concise and accurate.
+- Cite the relevant document sources when using document information.
+
+Prediction status:
+Prediction = {st.session_state.get("hasil", None)}
+Probability = {st.session_state.get("proba", None)}
+"""
 
 prompt = ChatPromptTemplate.from_messages([
     ("system", SYSTEM_PROMPT),
@@ -54,12 +97,14 @@ prompt = ChatPromptTemplate.from_messages([
 ])
 chain = prompt | st.session_state.llm | StrOutputParser()
 
+# Reset Chat
 col1, col2 = st.columns([6, 1])
 with col2:
     if st.button("Reset Chat", type="secondary"):
         st.session_state.messages = []
         st.rerun()
 
+# 4. Render Conversation History
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
@@ -69,6 +114,7 @@ for msg in st.session_state.messages:
                     st.caption(f"**{src['source']}** (page {src['page']})")
                     st.text(src["preview"])
 
+# 5. Handle User Turn
 if user_input := st.chat_input("Ask a question about diabetes or your risk factors..."):
     st.session_state.messages.append({"role": "user", "content": user_input})
     with st.chat_message("user"):
@@ -88,6 +134,8 @@ if user_input := st.chat_input("Ask a question about diabetes or your risk facto
                 }
                 for d in docs
             ]
+
+            # LLM generation with direct values
             response = chain.invoke({
                 "context": context_text,
                 "question": user_input,

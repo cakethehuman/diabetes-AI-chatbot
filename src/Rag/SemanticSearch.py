@@ -11,6 +11,9 @@ from src.ingestion.Indexer import getStore
 from src.ingestion.Indexer import indexPath
 from src.ingestion.Indexer import buildEmbeddings
 
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 def search(query: str, k: int = 4) -> list[tuple[Document, float]]:
     query = query.strip()
@@ -24,6 +27,7 @@ def search(query: str, k: int = 4) -> list[tuple[Document, float]]:
 
 
 def get_retriever(k: int = 4):
+    logger.info("Gettin top k similar data")
     return getStore(buildEmbeddings()).as_retriever(search_kwargs={"k": k})
 
 def main(argv: list[str] | None = None) -> int:
