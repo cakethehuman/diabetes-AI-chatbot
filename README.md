@@ -68,3 +68,44 @@ Upon a successful launch, Streamlit will automatically open your default web bro
 ```
 
 ---
+
+## 🧠 System Architecture & Data Flow
+
+This application links a traditional Machine Learning classification model with an intelligent Generative AI system using **Retrieval-Augmented Generation (RAG)**.
+
+```text
+ ┌──────────────────────┐      ┌───────────────────────────┐
+ │ 1. User Input        │ ───> │ 2. ML Prediction Engine   │
+ │ (Input needed)       │      │    (LGBM model          ) │
+ └──────────────────────┘      └───────────────────────────┘
+                                             │
+                                             ▼
+ ┌──────────────────────┐      ┌───────────────────────────┐
+ │    Medical Knowledge │      │ 3. Extracted Pipeline Data│
+ │    (PDF)             │ ───> │    • Outcome (Have/dont   │
+ │                      │      │         have diabetes)    │
+ └──────────────────────┘      │    • Probability (0.0-1.0)│
+                               └───────────────────────────┘
+                                             │
+ ┌───────────────────────────────────────────┴──────────────┐
+ │ 5. RAG + ML results                                      │
+ │    (prediction results + parsed medical text)            │
+ └──────────────────────────────────────────────────────────┘
+                                             │
+                                             ▼
+ ┌─────────────────────────────────────────────────────────┐
+ │ 6. Answers from RAG                                     │
+ └─────────────────────────────────────────────────────────┘
+```
+
+### Process Lifecycle:
+1. **User Input:** The patient enters clinical parameters via the Streamlit interface.
+2. **ML Prediction:** The classification model processes the parameters.
+3. **Data Extraction:** The engine outputs two crucial variables:
+   * **Prediction Result:** Diagnostic classification (`Have diabetes` / `Dont Have diabetes`).
+   * **Probability Score (`proba`):** The exact statistical certainty percentage of the risk calculation.
+4. **Context Injection & Retrieval:** The prediction result and probability metrics are automatically injected into the AI Agent's active memory buffer while the system dynamically pulls relevant context from local medical documents/
+5. **AI Synthesis:** The agent aggregates the user's specific risk numbers with guidelines from verified medical literature to deliver precise, tailored conversational responses.
+
+---
+
