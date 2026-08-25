@@ -14,4 +14,3 @@ pandas==3.0.5
 scikit-learn==1.6.1
 imbalanced-learn==0.14.2
 lightgbm==4.7.0
-python-dotenv>=1.0

@@ -8,10 +8,6 @@ __pycache__
 *.pyc
 .chroma_db
 ruvector.db
-data
-.claude
-.claude-flow
-.swarm
 docs
 *.md
 Dockerfile

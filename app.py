@@ -56,55 +56,42 @@ with st.sidebar:
 # 3. Chat System Setup
 st.title("Diabetes Health Assistant")
 
-SYSTEM_PROMPT = f"""
+SYSTEM_PROMPT = """
 You are a diabetes health assistant.
 
 You have TWO sources of information:
 
 1. MEDICAL DOCUMENTS
-Use these documents to answer questions about diabetes, symptoms, treatment,
-risk factors, prevention, and other medical information.
+You will be given retrieved document excerpts in the user's message under "Context".
+Use ONLY that context to answer medical-information questions.
 
 2. ML PREDICTION
-A separate machine-learning model provides:
-- Prediction: {st.session_state.get("hasil", "")}
-- Probability: {st.session_state.get("proba", "")}
+A separate machine-learning model may provide a prediction and probability,
+also included in the user's message context.
 
 IMPORTANT RULES:
-
-- For medical-information questions, ONLY use information supported by the
-  provided medical documents.
-- For questions about the user's prediction/risk, you MAY use the ML prediction
-  and probability provided above.
+- For medical-information questions, ONLY use the provided Context.
+- For questions about the user's prediction/risk, you MAY use the ML prediction info if present.
 - Do NOT treat the ML prediction as a medical diagnosis.
-- Do NOT invent medical information that is not present in the documents.
-- If the medical documents do not contain enough information to answer a
-  medical-information question, say:
+- Do NOT invent medical information not present in the Context.
+- If the Context is empty or insufficient, say:
   "I don't have enough information from the documents to answer this."
-- If the user asks about their prediction and the prediction has not been run,
-  tell them to run the prediction form first.
-- Be concise and accurate.
-- Cite the relevant document sources when using document information.
-
-Prediction status:
-Prediction = {st.session_state.get("hasil", None)}
-Probability = {st.session_state.get("proba", None)}
+- If the user asks about their prediction and it hasn't been run, tell them to run the prediction form first.
+- Be concise and accurate. Cite document sources when using document information.
 """
 
 prompt = ChatPromptTemplate.from_messages([
     ("system", SYSTEM_PROMPT),
-    ("human", "Context:\n{context}\n\nQuestion: {question}")
+    ("human", "Context:\n{context}\n\nPrediction: {hasil}\nProbability: {proba}\n\nQuestion: {question}")
 ])
 chain = prompt | st.session_state.llm | StrOutputParser()
 
-# Reset Chat
 col1, col2 = st.columns([6, 1])
 with col2:
     if st.button("Reset Chat", type="secondary"):
         st.session_state.messages = []
         st.rerun()
 
-# 4. Render Conversation History
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])

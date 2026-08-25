@@ -1,0 +1,51 @@
+services:
+  ingestion:
+    image: ${IMAGE_NAME:-cakethehuman/diabetes}:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chat-dokumen-ingestion
+    command: python -m src.scripts.build_index
+    env_file:
+      - .env
+    volumes:
+      - chroma_db:/app/.chroma_db
+      - uploads:/app/data
+    restart: "no"
+
+  app:
+    image: ${IMAGE_NAME:-cakethehuman/diabetes}:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chat-dokumen
+    restart: unless-stopped
+
+    depends_on:
+      ingestion:
+        condition: service_completed_successfully
+
+    ports:
+      - "${APP_HOST:-0.0.0.0}:${APP_PORT:-8501}:8501"
+
+    env_file:
+      - .env
+
+    volumes:
+      - chroma_db:/app/.chroma_db
+      - uploads:/app/data
+
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8501/_stcore/health', timeout=4).status==200 else 1)"
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
+volumes:
+  chroma_db:
+  uploads:
