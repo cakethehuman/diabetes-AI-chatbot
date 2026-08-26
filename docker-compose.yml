@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: chat-dokumen-ingestion
-    command: python -m src.scripts.build_index
+    command: python -m src.scripts.buildIndex
     env_file:
       - .env
     volumes:
