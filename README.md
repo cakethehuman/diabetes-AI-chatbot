@@ -56,6 +56,11 @@ Once the installation is complete, launch the local Streamlit server using the f
 streamlit run app.py (Run streamlit app and wait till .chromadb folder appear)
 python -m src.scripts.buildIndex (To insert documents to chromadb)
 ```
+Or you could use docker instaed
+
+```bash
+docker compose up -d --build
+```
 
 > 💡 **Note:** If your primary execution script uses a different name (e.g., `main.py` or `chatbot.py`), replace `app.py` with your actual file name.
 
