@@ -77,31 +77,8 @@ Upon a successful launch, Streamlit will automatically open your default web bro
 ## 🧠 System Architecture & Data Flow
 
 This application links a traditional Machine Learning classification model with an intelligent Generative AI system using **Retrieval-Augmented Generation (RAG)**.
+<img width="1573" height="812" alt="Untitled Diagram drawio" src="https://github.com/user-attachments/assets/9ffae22a-ca6c-43c9-8b96-522193c92c77" />
 
-```text
- ┌──────────────────────┐      ┌───────────────────────────┐
- │ 1. User Input        │ ───> │ 2. ML Prediction Engine   │
- │ (Input needed)       │      │    (LGBM model          ) │
- └──────────────────────┘      └───────────────────────────┘
-                                             │
-                                             ▼
- ┌──────────────────────┐      ┌───────────────────────────┐
- │    Medical Knowledge │      │ 3. Extracted Pipeline Data│
- │    (PDF)             │ ───> │    • Outcome (Have/dont   │
- │                      │      │         have diabetes)    │
- └──────────────────────┘      │    • Probability (0.0-1.0)│
-                               └───────────────────────────┘
-                                             │
- ┌───────────────────────────────────────────┴──────────────┐
- │ 5. RAG + ML results                                      │
- │    (prediction results + parsed medical text)            │
- └──────────────────────────────────────────────────────────┘
-                                             │
-                                             ▼
- ┌─────────────────────────────────────────────────────────┐
- │ 6. Answers from RAG                                     │
- └─────────────────────────────────────────────────────────┘
-```
 
 ### Process Lifecycle:
 1. **User Input:** The patient enters clinical parameters via the Streamlit interface.
