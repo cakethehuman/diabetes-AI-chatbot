@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: chat-dokumen-ingestion
+    container_name: chat-diabetes
     command: python -m src.scripts.buildIndex
     env_file:
       - .env

@@ -24,8 +24,10 @@ if "llm" not in st.session_state:
         api_key=settings.LLM_API_KEY,
         base_url=settings.LLM_BASE_URL,
     )
+if "pending_input" not in st.session_state:
+    st.session_state.pending_input = None
 
-# 2. Sidebar Prediction Form
+
 with st.sidebar:
     st.header("Diabetes Risk Prediction")
     with st.form("Form"):
@@ -43,7 +45,12 @@ with st.sidebar:
         proba, hasil = model._predict_proba()
         st.session_state.proba = float(proba[0])
         st.session_state.hasil = hasil
-
+        if hasil == 1:
+            auto_prompt = "I have diabetes, can you help?"
+        else:
+            auto_prompt = "I don't have diabetes, what should I know to stay healthy?"
+            
+        st.session_state.pending_input = auto_prompt
         with st.container(border=True):
             if st.session_state.hasil == 0:
                 st.session_state.hasil = "Don't have diabetes"
@@ -53,7 +60,6 @@ with st.sidebar:
             st.text(f"Probability : {st.session_state.proba:.4f}")
             st.text(f"Predicted result : {st.session_state.hasil}")
 
-# 3. Chat System Setup
 st.title("Diabetes Health Assistant")
 
 SYSTEM_PROMPT = """
@@ -125,15 +131,17 @@ for msg in st.session_state.messages:
                     st.caption(f"**{src['source']}** (page {src['page']})")
                     st.text(src["preview"])
 
-# 5. Handle User Turn
-if user_input := st.chat_input("Ask a question about diabetes or your risk factors..."):
+user_input = st.session_state.pop("pending_input", None) or st.chat_input(
+    "Ask a question about diabetes or your risk factors..."
+)
+
+if user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
     with st.chat_message("user"):
         st.markdown(user_input)
 
     with st.chat_message("assistant"):
         with st.spinner("Searching documents..."):
-            # Single retrieval call
             docs = st.session_state.retriever.invoke(user_input)
             context_text = "\n\n".join(d.page_content for d in docs)
             
@@ -146,7 +154,6 @@ if user_input := st.chat_input("Ask a question about diabetes or your risk facto
                 for d in docs
             ]
 
-            # LLM generation with direct values
             response = chain.invoke({
                 "context": context_text,
                 "question": user_input,
