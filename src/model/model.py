@@ -27,7 +27,7 @@ class Model(BaseModel):
     def _predict_proba(self):
         logger.info("Making predictions")
         model = self.load_model()
-        feature = ['smoking_history','bmi','HbA1c_level','blood_glucose_level']
+        feature = ['smoking_history','gender','bmi','HbA1c_level','blood_glucose_level','age']
         df = pd.DataFrame([self.data], columns=feature)
         probability = model.predict_proba(df)
         return np.max(probability, axis=1) * 100, np.argmax(probability)

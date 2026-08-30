@@ -31,17 +31,22 @@ if "pending_input" not in st.session_state:
 with st.sidebar:
     st.header("Diabetes Risk Prediction")
     with st.form("Form"):
-        Smoke_history = st.selectbox(
+        smoke_history = st.selectbox(
             label="Smoking", 
             options=['never', 'current', 'former', 'ever', 'not current']
         )
-        bmi = st.number_input(label="BMI", min_value=0.0, format="%.2f")
+        gender = st.selectbox(
+            label="Gender", 
+            options=['male','female']
+        )
+        bmi = st.number_input(label="Bmi", min_value=0.0, format="%.2f")
         HbA1c_level = st.number_input(label="HbA1c Level", min_value=0.0, format="%.2f")
         blood_glucose_level = st.number_input(label="Blood Glucose Level", min_value=0.0, format="%.2f")
+        age = st.number_input(label="Age", min_value=0.0, format="%.2f")
         submit = st.form_submit_button("Predict")
 
     if submit:
-        model = Model(data=[Smoke_history, bmi, HbA1c_level, blood_glucose_level])
+        model = Model(data=[smoke_history, gender, bmi, HbA1c_level, blood_glucose_level, age])
         proba, hasil = model._predict_proba()
         st.session_state.proba = float(proba[0])
         st.session_state.hasil = hasil
