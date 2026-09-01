@@ -77,7 +77,7 @@ Upon a successful launch, Streamlit will automatically open your default web bro
 ## 🧠 System Architecture & Data Flow
 
 This application links a traditional Machine Learning classification model with an intelligent Generative AI system using **Retrieval-Augmented Generation (RAG)**.
-<img width="1573" height="812" alt="Untitled Diagram drawio" src="https://github.com/user-attachments/assets/9ffae22a-ca6c-43c9-8b96-522193c92c77" />
+<img width="1874" height="812" alt="Untitled Diagram drawio (1)" src="https://github.com/user-attachments/assets/0b068109-5b70-4d5e-b657-4f808352c318" />
 
 
 ### Process Lifecycle:
